@@ -1,0 +1,159 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Post;
+use App\Models\Like;
+use App\Models\Comment;
+use Illuminate\Support\Facades\Auth;
+
+class PostController extends Controller
+{
+    /**
+     * Show form to create a new post.
+     */
+    public function create()
+    {
+        return view('posts.create');
+    }
+
+    /**
+     * Store a new post (photo or text).
+     */
+    public function store(Request $request)
+    {
+        // Check if posting a photo
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => 'required|image|max:10240', // 10 MB max
+            ]);
+
+            $image = $request->file('photo');
+            $size = getimagesize($image);
+
+            // Validate dimensions
+            if ($size[0] > 5000 || $size[1] > 5000) {
+                return back()->withErrors(['photo' => 'Foto is te groot (max 5000x5000 px)']);
+            }
+            if ($size[0] < 150 || $size[1] < 150) {
+                return back()->withErrors(['photo' => 'Foto is te klein (min 150x150 px)']);
+            }
+
+            // Store photo
+            $path = $image->store('posts', 'public');
+
+            Post::create([
+                'user_id' => Auth::id(),
+                'type' => 'photo',
+                'media_url' => $path,
+                'content' => '',
+            ]);
+
+            return redirect()->route('hot')->with('success', 'Foto succesvol gepost!');
+        }
+
+        // Otherwise, posting text
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        // Word count limit
+        $wordCount = str_word_count($request->content);
+        if ($wordCount > 100) {
+            return back()->withErrors(['content' => 'Te lange tekst. Maximaal 100 woorden.']);
+        }
+
+        // Simple bad-word filter
+        $badWords = ['vloekwoord1', 'vloekwoord2', 'scheldwoord'];
+        foreach ($badWords as $badWord) {
+            if (stripos($request->content, $badWord) !== false) {
+                return back()->withErrors(['content' => 'Bericht bevat ongepaste content.']);
+            }
+        }
+
+        Post::create([
+            'user_id' => Auth::id(),
+            'type' => 'text',
+            'content' => $request->content,
+        ]);
+
+        return redirect()->route('hot')->with('success', 'Tekst succesvol gepost!');
+    }
+
+    /**
+     * Show a single post with comments and likes.
+     */
+    public function show($id)
+    {
+        $post = Post::with(['user', 'comments.user', 'likes'])->findOrFail($id);
+        return view('posts.show', compact('post'));
+    }
+
+    /**
+     * Like a post.
+     */
+    public function like($id)
+    {
+        $post = Post::findOrFail($id);
+
+        $post->likes()->updateOrCreate(
+            ['user_id' => Auth::id()],
+            ['type' => 'like']
+        );
+
+        return redirect()->route('posts.show', $id);
+    }
+
+    /**
+     * Dislike a post.
+     */
+    public function dislike($id)
+    {
+        $post = Post::findOrFail($id);
+
+        $post->likes()->updateOrCreate(
+            ['user_id' => Auth::id()],
+            ['type' => 'dislike']
+        );
+
+        return redirect()->route('posts.show', $id);
+    }
+
+    /**
+     * Add a comment to a post.
+     */
+    public function comment(Request $request, $id)
+    {
+        $request->validate(['content' => 'required|string|max:500']);
+
+        $post = Post::findOrFail($id);
+
+        $post->comments()->create([
+            'user_id' => Auth::id(),
+            'content' => $request->content,
+        ]);
+
+        return redirect()->route('posts.show', $id);
+    }
+    public function friendsPosts()
+{
+    // Get IDs of all your friends
+    $friendIds = \App\Models\Friend::where('user_id', auth()->id())
+                ->orWhere('friend_id', auth()->id())
+                ->get()
+                ->map(function($friend) {
+                    return $friend->user_id == auth()->id() ? $friend->friend_id : $friend->user_id;
+                })->toArray();
+
+    // Fetch posts only from friends, newest first
+    $posts = \App\Models\Post::with('user')
+                ->withCount(['likes', 'comments'])
+                ->whereIn('user_id', $friendIds)
+                ->latest()
+                ->get();
+
+    return view('posts.friends', compact('posts'));
+}
+
+}

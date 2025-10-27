@@ -9,19 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+public function up(): void
+{
+    // Skip creating if it already exists
+    if (!Schema::hasTable('password_reset_tokens')) {
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
+}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('password_reset_tokens');
-    }
+public function down(): void
+{
+    Schema::dropIfExists('password_reset_tokens');
+}
+
+
 };

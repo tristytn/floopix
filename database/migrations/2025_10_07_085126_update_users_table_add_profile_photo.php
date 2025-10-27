@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            // Add new columns
+            $table->string('profile_photo')->nullable()->after('password');
+            $table->timestamp('email_verified_at')->nullable()->after('email'); // if missing
+            $table->rememberToken()->after('password'); // if missing
         });
     }
 
@@ -22,7 +25,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('profile_photo');
+            $table->dropColumn('email_verified_at');
+            $table->dropColumn('remember_token');
         });
     }
 };
+
+
