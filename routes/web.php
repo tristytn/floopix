@@ -44,4 +44,6 @@ Route::middleware('auth')->group(function () {
     ->name('user.profile'); // <-- Add this
 
     Route::post('/user/{id}/add-friend', [ProfileController::class, 'addFriend'])->name('add.friend');
+    Route::post('/friend/remove/{id}', [ProfileController::class, 'removeFriend'])->name('remove.friend');
+
 });

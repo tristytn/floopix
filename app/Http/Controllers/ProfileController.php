@@ -43,4 +43,17 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Friend added!');
     }
+
+     public function removeFriend($id)
+    {
+        Friend::where(function ($q) use ($id) {
+                $q->where('user_id', Auth::id())->where('friend_id', $id);
+            })
+            ->orWhere(function ($q) use ($id) {
+                $q->where('user_id', $id)->where('friend_id', Auth::id());
+            })
+            ->delete();
+
+        return back()->with('success', 'Vriend verwijderd!');
+    }
 }

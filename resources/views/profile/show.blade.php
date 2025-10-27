@@ -11,43 +11,48 @@
 
         @if ($user->id !== Auth::id())
             @if ($isFriend)
-                <span class="text-green-600 font-semibold">✅ You are friends</span>
+                <div class="flex items-center space-x-3">
+                    <span class="text-green-600 font-semibold">✅ Jullie zijn vrienden</span>
+                    <form action="{{ route('remove.friend', $user->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                            ❌ Verwijder vriend
+                        </button>
+                    </form>
+                </div>
             @else
                 <form action="{{ route('add.friend', $user->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                        ➕ Add Friend
+                        ➕ Voeg toe als vriend
                     </button>
                 </form>
             @endif
         @else
-            <span class="text-gray-500">This is your own profile.</span>
+            <span class="text-gray-500">Dit is je eigen profiel.</span>
         @endif
     </div>
 </div>
 
 <section>
-    <h3 class="text-lg font-semibold mb-4">📸 Posts by {{ $user->name }}</h3>
+    <h3 class="text-lg font-semibold mb-4">📸 Posts van {{ $user->name }}</h3>
 
     @if ($posts->isEmpty())
-        <p class="text-gray-500">No posts yet.</p>
+        <p class="text-gray-500">Nog geen posts.</p>
     @else
         <div class="grid gap-4">
             @foreach ($posts as $post)
                 <a href="{{ route('posts.show', $post->id) }}" class="block group">
                     <div class="bg-white p-4 shadow rounded-xl hover:shadow-lg transition">
-                        <!-- Image -->
                         @if($post->type === 'photo' && $post->media_url)
                             <img src="{{ asset('storage/' . $post->media_url) }}" 
                                  class="rounded-lg mb-3 max-h-96 max-w-full mx-auto object-contain">
                         @endif
 
-                        <!-- Post content -->
                         @if(!empty($post->content))
                             <p class="text-gray-800 group-hover:text-indigo-700 transition">{{ $post->content }}</p>
                         @endif
 
-                        <!-- Likes, Comments, and Date -->
                         <div class="flex justify-between items-center mt-2 text-sm text-gray-500">
                             <div class="flex space-x-4">
                                 <span>❤️ {{ $post->positiveLikes->count() }}</span>
