@@ -23,16 +23,14 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if posting a photo
         if ($request->hasFile('photo')) {
             $request->validate([
-                'photo' => 'required|image|max:10240', // 10 MB max
+                'photo' => 'required|image|max:10240',
             ]);
 
             $image = $request->file('photo');
             $size = getimagesize($image);
 
-            // Validate dimensions
             if ($size[0] > 5000 || $size[1] > 5000) {
                 return back()->withErrors(['photo' => 'Foto is te groot (max 5000x5000 px)']);
             }
@@ -40,7 +38,6 @@ class PostController extends Controller
                 return back()->withErrors(['photo' => 'Foto is te klein (min 150x150 px)']);
             }
 
-            // Store photo
             $path = $image->store('posts', 'public');
 
             Post::create([
@@ -53,18 +50,15 @@ class PostController extends Controller
             return redirect()->route('hot')->with('success', 'Foto succesvol gepost!');
         }
 
-        // Otherwise, posting text
         $request->validate([
             'content' => 'required|string|max:1000',
         ]);
 
-        // Word count limit
         $wordCount = str_word_count($request->content);
         if ($wordCount > 100) {
             return back()->withErrors(['content' => 'Te lange tekst. Maximaal 100 woorden.']);
         }
 
-        // Simple bad-word filter
         $badWords = ['vloekwoord1', 'vloekwoord2', 'scheldwoord'];
         foreach ($badWords as $badWord) {
             if (stripos($request->content, $badWord) !== false) {
@@ -82,7 +76,7 @@ class PostController extends Controller
     }
 
     /**
-     * Show a single post with comments and likes.
+     * Show a single post.
      */
     public function show($id)
     {
@@ -91,37 +85,59 @@ class PostController extends Controller
     }
 
     /**
-     * Like a post.
+     * Like a post (toggle system).
      */
     public function like($id)
     {
         $post = Post::findOrFail($id);
+        $userId = Auth::id();
 
-        $post->likes()->updateOrCreate(
-            ['user_id' => Auth::id()],
-            ['type' => 'like']
-        );
+        $existing = $post->likes()->where('user_id', $userId)->first();
+
+        if ($existing) {
+            if ($existing->type === 'like') {
+                $existing->delete();
+            } else {
+                $existing->update(['type' => 'like']);
+            }
+        } else {
+            $post->likes()->create([
+                'user_id' => $userId,
+                'type' => 'like',
+            ]);
+        }
 
         return redirect()->route('posts.show', $id);
     }
 
     /**
-     * Dislike a post.
+     * Dislike a post (toggle system).
      */
     public function dislike($id)
     {
         $post = Post::findOrFail($id);
+        $userId = Auth::id();
 
-        $post->likes()->updateOrCreate(
-            ['user_id' => Auth::id()],
-            ['type' => 'dislike']
-        );
+        $existing = $post->likes()->where('user_id', $userId)->first();
+
+        if ($existing) {
+            if ($existing->type === 'dislike') {
+                $existing->delete();
+            } else {
+                $existing->update(['type' => 'dislike']);
+            }
+        } else {
+            $post->likes()->create([
+                'user_id' => $userId,
+                'type' => 'dislike',
+            ]);
+        }
 
         return redirect()->route('posts.show', $id);
     }
 
     /**
-     * Add a comment to a post.
+     * Add a comment.
      */
     public function comment(Request $request, $id)
     {
@@ -136,24 +152,25 @@ class PostController extends Controller
 
         return redirect()->route('posts.show', $id);
     }
+
+    /**
+     * Show posts by friends.
+     */
     public function friendsPosts()
-{
-    // Get IDs of all your friends
-    $friendIds = \App\Models\Friend::where('user_id', auth()->id())
-                ->orWhere('friend_id', auth()->id())
-                ->get()
-                ->map(function($friend) {
-                    return $friend->user_id == auth()->id() ? $friend->friend_id : $friend->user_id;
-                })->toArray();
+    {
+        $friendIds = \App\Models\Friend::where('user_id', auth()->id())
+            ->orWhere('friend_id', auth()->id())
+            ->get()
+            ->map(function($friend) {
+                return $friend->user_id == auth()->id() ? $friend->friend_id : $friend->user_id;
+            })->toArray();
 
-    // Fetch posts only from friends, newest first
-    $posts = \App\Models\Post::with('user')
-                ->withCount(['likes', 'comments'])
-                ->whereIn('user_id', $friendIds)
-                ->latest()
-                ->get();
+        $posts = \App\Models\Post::with('user')
+            ->withCount(['likes', 'comments'])
+            ->whereIn('user_id', $friendIds)
+            ->latest()
+            ->get();
 
-    return view('posts.friends', compact('posts'));
-}
-
+        return view('posts.friends', compact('posts'));
+    }
 }

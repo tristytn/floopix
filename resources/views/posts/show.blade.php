@@ -17,7 +17,7 @@
     <!-- Post Media -->
     @if($post->type === 'photo' && $post->media_url)
         <img src="{{ asset('storage/' . $post->media_url) }}" 
-             class="rounded-lg mb-4 max-h-96 mx-auto">
+             class="rounded-lg mb-4 max-h-96 mx-auto object-contain">
     @endif
 
     <!-- Post Content -->
@@ -26,18 +26,18 @@
     @endif
 
     <!-- Like / Dislike Buttons -->
-    <div class="flex space-x-4 mb-6">
+    <div class="flex space-x-6 mb-6">
         <form action="{{ route('posts.like', $post->id) }}" method="POST">
             @csrf
-            <button type="submit" class="text-indigo-600 font-semibold">
-                ❤️ Like ({{ $post->likes->count() }})
+            <button type="submit" class="text-indigo-600 font-semibold hover:underline">
+                ❤️ Like ({{ $post->positiveLikes->count() }})
             </button>
         </form>
 
         <form action="{{ route('posts.dislike', $post->id) }}" method="POST">
             @csrf
-            <button type="submit" class="text-red-500 font-semibold">
-                💔 Dislike
+            <button type="submit" class="text-red-500 font-semibold hover:underline">
+                💔 Dislike ({{ $post->negativeLikes->count() }})
             </button>
         </form>
     </div>

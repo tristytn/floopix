@@ -50,7 +50,8 @@
                         <!-- Likes, Comments, and Date -->
                         <div class="flex justify-between items-center mt-2 text-sm text-gray-500">
                             <div class="flex space-x-4">
-                                <span>❤️ {{ $post->likes_count }}</span>
+                                <span>❤️ {{ $post->positiveLikes->count() }}</span>
+                                <span>💔 {{ $post->negativeLikes->count() }}</span>
                                 <span>💬 {{ $post->comments_count }}</span>
                             </div>
                             <span>Posted on {{ $post->created_at->format('M d, Y') }}</span>

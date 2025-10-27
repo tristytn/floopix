@@ -42,4 +42,20 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    /**
+     * Only likes (type = like)
+     */
+    public function positiveLikes()
+    {
+        return $this->likes()->where('type', 'like');
+    }
+
+    /**
+     * Only dislikes (type = dislike)
+     */
+    public function negativeLikes()
+    {
+        return $this->likes()->where('type', 'dislike');
+    }
 }

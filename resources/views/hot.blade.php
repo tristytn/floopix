@@ -20,7 +20,8 @@
                         </div>
 
                         <p class="text-sm text-gray-500">
-                            ❤️ {{ $post->likes_count }} · 💬 {{ $post->comments_count }}
+                            <span>❤️ {{ $post->positiveLikes->count() }}</span> ·
+                                <span>💔 {{ $post->negativeLikes->count() }}</span> · 💬 {{ $post->comments_count }}
                         </p>
                     </div>
 
