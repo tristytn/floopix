@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Nieuwe Post | Floopix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 min-h-screen p-8">
-    <header class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-indigo-700">📸 Nieuwe Post</h1>
-        <a href="/hot" class="text-indigo-600 hover:underline">Terug naar Hot</a>
-    </header>
+@extends('layouts.app')
+
+@section('title', 'Vriendschapsverzoeken | Floopix')
+
+@section('content')
 
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-lg mx-auto">
         @if ($errors->any())
@@ -38,3 +31,4 @@
     </div>
 </body>
 </html>
+@endsection
