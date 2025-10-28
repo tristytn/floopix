@@ -23,13 +23,22 @@
             </button>
 
             @auth
+                <!-- Create post -->
                 <a href="{{ route('posts.create') }}" 
                    class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
                     + Maak een post
                 </a>
+
+                <!-- Friends feed -->
                 <a href="{{ route('posts.friends') }}" 
                    class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
                     👥 Vrienden Feed
+                </a>
+
+                <!-- Friend requests -->
+                <a href="{{ route('friends.requests') }}" 
+                   class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition">
+                    📩 Vrienden Verzoeken
                 </a>
             @endauth
         </form>

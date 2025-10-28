@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\HotController;
-
+use App\Http\Controllers\FriendController;
 // -------------------- AUTH --------------------
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -45,5 +45,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/user/{id}/add-friend', [ProfileController::class, 'addFriend'])->name('add.friend');
     Route::post('/friend/remove/{id}', [ProfileController::class, 'removeFriend'])->name('remove.friend');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/friends/request/{id}', [FriendController::class, 'sendRequest'])->name('friends.request');
+    Route::post('/friends/accept/{id}', [FriendController::class, 'acceptRequest'])->name('friends.accept');
+    Route::post('/friends/decline/{id}', [FriendController::class, 'declineRequest'])->name('friends.decline');
+    Route::get('/friends/requests', [FriendController::class, 'pendingRequests'])->name('friends.requests');
+});
 
 });

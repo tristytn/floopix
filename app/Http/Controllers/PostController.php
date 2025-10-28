@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Like;
-use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ProfanityFilter;
 
 class PostController extends Controller
 {
+    protected $filter;
+
+    public function __construct(ProfanityFilter $filter)
+    {
+        $this->filter = $filter;
+    }
+
     /**
      * Show form to create a new post.
      */
@@ -19,10 +26,11 @@ class PostController extends Controller
     }
 
     /**
-     * Store a new post (photo or text).
+     * Store a new post (photo or text) with profanity check.
      */
     public function store(Request $request)
     {
+        // Handle photo posts
         if ($request->hasFile('photo')) {
             $request->validate([
                 'photo' => 'required|image|max:10240',
@@ -50,26 +58,27 @@ class PostController extends Controller
             return redirect()->route('hot')->with('success', 'Foto succesvol gepost!');
         }
 
+        // Validate text content
         $request->validate([
             'content' => 'required|string|max:1000',
         ]);
 
-        $wordCount = str_word_count($request->content);
-        if ($wordCount > 100) {
-            return back()->withErrors(['content' => 'Te lange tekst. Maximaal 100 woorden.']);
+        $content = $request->input('content');
+
+        // Check word limit
+        if (str_word_count($content) > 100) {
+            return back()->withErrors(['content' => 'Te lange tekst. Maximaal 100 woorden.'])->withInput();
         }
 
-        $badWords = ['vloekwoord1', 'vloekwoord2', 'scheldwoord'];
-        foreach ($badWords as $badWord) {
-            if (stripos($request->content, $badWord) !== false) {
-                return back()->withErrors(['content' => 'Bericht bevat ongepaste content.']);
-            }
+        // Profanity check
+        if ($this->filter->containsBadWords($content)) {
+            return back()->withErrors(['content' => 'Bericht bevat ongepaste woorden.'])->withInput();
         }
 
         Post::create([
             'user_id' => Auth::id(),
             'type' => 'text',
-            'content' => $request->content,
+            'content' => $content,
         ]);
 
         return redirect()->route('hot')->with('success', 'Tekst succesvol gepost!');
@@ -137,20 +146,35 @@ class PostController extends Controller
     }
 
     /**
-     * Add a comment.
+     * Add a comment with profanity and limits.
      */
     public function comment(Request $request, $id)
     {
-        $request->validate(['content' => 'required|string|max:500']);
+        $content = $request->input('content');
+
+        // Character limit
+        if (strlen($content) > 1000) {
+            return back()->withErrors(['content' => 'Comment is too long. Maximum 1000 characters allowed.'])->withInput();
+        }
+
+        // Word limit
+        if (str_word_count($content) > 100) {
+            return back()->withErrors(['content' => 'Comment is too long. Maximum 100 words allowed.'])->withInput();
+        }
+
+        // Profanity check
+        if ($this->filter->containsBadWords($content)) {
+            return back()->withErrors(['content' => 'Comment bevat ongepaste woorden.'])->withInput();
+        }
 
         $post = Post::findOrFail($id);
 
         $post->comments()->create([
             'user_id' => Auth::id(),
-            'content' => $request->content,
+            'content' => $content,
         ]);
 
-        return redirect()->route('posts.show', $id);
+        return redirect()->route('posts.show', $id)->with('success', 'Comment added!');
     }
 
     /**

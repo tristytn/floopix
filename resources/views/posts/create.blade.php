@@ -23,7 +23,7 @@
 
             <div class="mb-5">
                 <label class="block text-gray-700 font-medium mb-1">Tekstbericht (optioneel)</label>
-                <textarea name="content" rows="4" class="w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 p-2" placeholder="Wat wil je delen? (max 100 woorden)"></textarea>
+                <textarea name="content" rows="4" class="w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 p-2" placeholder="Wat wil je delen? (max 100 woorden of 1000 karakters)"></textarea>
             </div>
 
             <div class="mb-5">
