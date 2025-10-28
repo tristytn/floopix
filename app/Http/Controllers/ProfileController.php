@@ -61,4 +61,32 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Vriend verwijderd!');
     }
+
+  /**
+ * Delete a friend completely (used for "Remove Friend" button)
+ */
+public function deleteFriend($id)
+{
+    // Remove accepted friend requests
+    \App\Models\FriendRequest::where(function ($q) use ($id) {
+        $q->where('sender_id', Auth::id())->where('receiver_id', $id);
+    })
+    ->orWhere(function ($q) use ($id) {
+        $q->where('sender_id', $id)->where('receiver_id', Auth::id());
+    })
+    ->where('status', 'accepted')
+    ->delete();
+
+    // Remove friendship from friends table
+    \App\Models\Friend::where(function ($q) use ($id) {
+        $q->where('user_id', Auth::id())->where('friend_id', $id);
+    })
+    ->orWhere(function ($q) use ($id) {
+        $q->where('user_id', $id)->where('friend_id', Auth::id());
+    })
+    ->delete();
+
+    return back()->with('success', 'Vriend verwijderd!');
+}
+
 }

@@ -61,14 +61,14 @@
             <p class="text-red-600 mb-2 font-semibold">{{ $message }}</p>
         @enderror
 
-        <textarea name="content" id="commentContent" placeholder="Write a comment..." 
+        <textarea name="content" id="commentContent" placeholder="Typ een comment..." 
             class="w-full border rounded-md p-2 focus:ring-2 focus:ring-indigo-500 break-words" 
             rows="4" maxlength="1000">{{ old('content') }}</textarea>
 
         <!-- Live counters -->
         <div class="flex justify-between mt-1 text-sm text-gray-500">
-            <span id="charCount">0 / 1000 characters</span>
-            <span id="wordCount">0 / 100 words</span>
+            <span id="charCount">0 / 1000 karakters</span>
+            <span id="wordCount">0 / 100 woorden</span>
         </div>
 
         <button type="submit" 
@@ -89,8 +89,8 @@
         const words = text.trim().split(/\s+/).filter(Boolean).length;
         const chars = text.length;
 
-        charCount.textContent = `${chars} / 1000 characters`;
-        wordCount.textContent = `${words} / 100 words`;
+        charCount.textContent = `${chars} / 1000 karakters`;
+        wordCount.textContent = `${words} / 100 woorden`;
 
         charCount.style.color = chars > 1000 ? 'red' : '#6b7280';
         wordCount.style.color = words > 100 ? 'red' : '#6b7280';

@@ -14,12 +14,13 @@
             @if ($isFriend)
                 <div class="flex items-center space-x-3">
                     <span class="text-green-600 font-semibold">✅ Jullie zijn vrienden</span>
-                    <form action="{{ route('remove.friend', $user->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                            ❌ Verwijder Vriend
-                        </button>
-                    </form>
+                    <form action="{{ route('delete.friend', $user->id) }}" method="POST">
+    @csrf
+    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+        ❌ Verwijder Vriend
+    </button>
+</form>
+
                 </div>
 
             {{-- Friend request already sent --}}

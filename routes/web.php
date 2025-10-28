@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/user/{id}/add-friend', [ProfileController::class, 'addFriend'])->name('add.friend');
     Route::post('/friend/remove/{id}', [ProfileController::class, 'removeFriend'])->name('remove.friend');
+    Route::post('/profile/{id}/delete-friend', [ProfileController::class, 'deleteFriend'])->name('delete.friend');
+
 
 
 Route::middleware(['auth'])->group(function () {

@@ -148,34 +148,39 @@ class PostController extends Controller
     /**
      * Add a comment with profanity and limits.
      */
-    public function comment(Request $request, $id)
-    {
-        $content = $request->input('content');
+   public function comment(Request $request, $id)
+{
+    $content = trim($request->input('content'));
 
-        // Character limit
-        if (strlen($content) > 1000) {
-            return back()->withErrors(['content' => 'Comment is too long. Maximum 1000 characters allowed.'])->withInput();
-        }
-
-        // Word limit
-        if (str_word_count($content) > 100) {
-            return back()->withErrors(['content' => 'Comment is too long. Maximum 100 words allowed.'])->withInput();
-        }
-
-        // Profanity check
-        if ($this->filter->containsBadWords($content)) {
-            return back()->withErrors(['content' => 'Comment bevat ongepaste woorden.'])->withInput();
-        }
-
-        $post = Post::findOrFail($id);
-
-        $post->comments()->create([
-            'user_id' => Auth::id(),
-            'content' => $content,
-        ]);
-
-        return redirect()->route('posts.show', $id)->with('success', 'Comment added!');
+    // Check if comment is empty
+    if (empty($content)) {
+        return back()->withErrors(['content' => 'Kan geen lege comment plaatsen'])->withInput();
     }
+
+    // Character limit
+    if (strlen($content) > 1000) {
+        return back()->withErrors(['content' => 'Comment is te lang. Maximaal 1000 karakters toegestaan.'])->withInput();
+    }
+
+    // Word limit
+    if (str_word_count($content) > 100) {
+        return back()->withErrors(['content' => 'Comment is te lang. Maximaal 100 woorden toegestaan.'])->withInput();
+    }
+
+    // Profanity check
+    if ($this->filter->containsBadWords($content)) {
+        return back()->withErrors(['content' => 'Comment bevat ongepaste woorden.'])->withInput();
+    }
+
+    $post = Post::findOrFail($id);
+
+    $post->comments()->create([
+        'user_id' => Auth::id(),
+        'content' => $content,
+    ]);
+
+    return redirect()->route('posts.show', $id)->with('success', 'Comment toegevoegd!');
+}
 
     /**
      * Show posts by friends.

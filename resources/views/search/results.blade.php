@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto mt-6 bg-white rounded-lg shadow p-6">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Search Results for “{{ $query }}”</h2>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Zoekresultaten voor “{{ $query }}”</h2>
 
     @if($users->isEmpty())
-        <p class="text-gray-500">No users found.</p>
+        <p class="text-gray-500">Geen gebruikers gevonden.</p>
     @else
         <ul class="divide-y divide-gray-200">
             @foreach($users as $user)
