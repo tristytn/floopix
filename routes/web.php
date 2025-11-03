@@ -7,6 +7,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\HotController;
 use App\Http\Controllers\FriendController;
+
+
+Route::get('/', function () {
+    return redirect()->route('hot');
+});
 // -------------------- AUTH --------------------
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
