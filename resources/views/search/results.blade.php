@@ -17,7 +17,7 @@
                     </div>
                     <a href="{{ route('user.profile', $user->id) }}" 
                        class="text-indigo-600 hover:underline">
-                        View Profile
+                        Bekijk profiel
                     </a>
                 </li>
             @endforeach

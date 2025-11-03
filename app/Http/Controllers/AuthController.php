@@ -25,7 +25,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials provided.',
+            'email' => 'Verkeerde email of wachtwoord ingevuld.',
         ]);
     }
 
